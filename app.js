@@ -8,6 +8,7 @@ const { celebrate, Joi } = require('celebrate');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const auth = require('./middlewares/auth');
+const cors = require('./middlewares/cors');
 const {
   createUser, login,
 } = require('./controllers/users');
@@ -20,6 +21,9 @@ const limiter = rateLimit({
 });
 const app = express();
 const NotFoundError = require('./errors/notfound');
+
+app.options('*', cors)
+app.use(cors)
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
