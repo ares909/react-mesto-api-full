@@ -26,7 +26,7 @@ const NotFoundError = require('./errors/notfound');
 
 // app.options('*', cors())
 app.use(cors({
-  origin: 'https://khomyakov.nomoredomains.icu/',
+  origin: 'http://localhost:3000',
   credentials: true,
 }));
 
