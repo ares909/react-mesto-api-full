@@ -31,6 +31,13 @@ const getUserById = (req, res, next) => {
     });
 };
 
+const getUser = (req, res, next) => {
+  User.findOne({ _id: req.user })
+    .orFail(() => new NotFoundError('Нет пользователя с таким id'))
+    .then((user) => res.send(user))
+    .catch(next);
+};
+
 const createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
@@ -110,14 +117,24 @@ const login = (req, res, next) => {
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
-        sameSite: true,
+        sameSite: 'none',
       });
 
-      res.send({ message: 'Вход выполнен' });
+      res.send(user.email);
     })
     .catch(next);
 };
 
+const logout = (req, res) => {
+  // const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+  //   { expiresIn: '7d' });
+  res.cookie('jwt', 'token', {
+    maxAge: 0,
+    httpOnly: true,
+    sameSite: 'none',
+  }).end();
+};
+
 module.exports = {
-  getUsers, createUser, getUserById, updateUser, updateAvatar, login,
+  getUsers, createUser, getUserById, updateUser, updateAvatar, login, getUser, logout,
 };

@@ -5,12 +5,14 @@ const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 const { celebrate, Joi } = require('celebrate');
+const cors = require('cors');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const auth = require('./middlewares/auth');
-const cors = require('./middlewares/cors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+// const logout = require('./routes/logout');
 const {
-  createUser, login,
+  createUser, login, logout,
 } = require('./controllers/users');
 const { validatePassword } = require('./utils/validation');
 
@@ -22,14 +24,17 @@ const limiter = rateLimit({
 const app = express();
 const NotFoundError = require('./errors/notfound');
 
-app.options('*', cors)
-app.use(cors)
+// app.options('*', cors())
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(helmet());
 app.use(cookieParser());
-app.use(limiter);
+// app.use(limiter);
 
 mongoose.connect('mongodb://localhost:27017/mestodb2', {
   useNewUrlParser: true,
@@ -37,6 +42,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb2', {
   useFindAndModify: false,
 });
 
+app.use(requestLogger);
 app.use('/users', auth, users);
 app.use('/cards', auth, cards);
 app.use('/signin', celebrate({
@@ -55,10 +61,11 @@ app.use('/signup', celebrate({
       .custom(validatePassword, 'custom validation'),
   }),
 }), createUser);
+app.use('/logout', logout);
 app.use(() => {
   throw new NotFoundError('Запрашиваемый ресурс не найден');
 });
-
+app.use(errorLogger);
 app.use(errors());
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {

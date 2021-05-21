@@ -1,11 +1,12 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const {
-  getUsers, getUserById, createUser, updateUser, updateAvatar, login,
+  getUsers, getUserById, createUser, updateUser, updateAvatar, login, getUser, logout
 } = require('../controllers/users');
 const { validatePassword, validateUrl } = require('../utils/validation');
 
 router.get('/', getUsers);
+router.get('/me', getUser);
 router.get('/:userId', celebrate({
   params: Joi.object().keys({
     userId: Joi.string().length(24).hex(),
@@ -49,5 +50,8 @@ router.post('/signup', celebrate({
       .custom(validatePassword, 'custom validation'),
   }),
 }), createUser);
+
+router.post('/logout', logout);
+
 
 module.exports = router;
