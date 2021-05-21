@@ -25,8 +25,11 @@ const app = express();
 const NotFoundError = require('./errors/notfound');
 
 // app.options('*', cors())
+const originList = [
+  'https://khomyakov.nomoredomains.icu', 'http://khomyakov.nomoredomains.icu', 'http://localhost:3000', 'https://localhost:3000',
+];
 app.use(cors({
-  origin: 'https://khomyakov.nomoredomains.icu',
+  origin: originList,
   credentials: true,
 }));
 
@@ -34,7 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(helmet());
 app.use(cookieParser());
-// app.use(limiter);
+app.use(limiter);
 
 mongoose.connect('mongodb://localhost:27017/mestodb2', {
   useNewUrlParser: true,
