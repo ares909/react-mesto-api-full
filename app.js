@@ -9,12 +9,13 @@ const cors = require('cors');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const auth = require('./middlewares/auth');
+const { errorHandler } = require('./middlewares/error-handler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const {
   createUser, login, logout,
 } = require('./controllers/users');
-const { validatePassword } = require('./utils/validation');
+const { validatePassword, validateUrl } = require('./utils/validation');
 
 const { PORT = 3005 } = process.env;
 const limiter = rateLimit({
@@ -37,7 +38,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(helmet());
 app.use(cookieParser());
-app.use(limiter);
 
 mongoose.connect('mongodb://localhost:27017/mestodb2', {
   useNewUrlParser: true,
@@ -46,6 +46,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb2', {
 });
 
 app.use(requestLogger);
+app.use(limiter);
 app.use('/users', auth, users);
 app.use('/cards', auth, cards);
 app.get('/crash-test', () => {
@@ -63,7 +64,7 @@ app.use('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().trim(true),
+    avatar: Joi.string().custom(validateUrl, 'custom validation'),
     email: Joi.string().required().email().trim(true),
     password: Joi.string().required().min(8).trim(true)
       .custom(validatePassword, 'custom validation'),
@@ -75,17 +76,7 @@ app.use(() => {
 });
 app.use(errorLogger);
 app.use(errors());
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  return res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
