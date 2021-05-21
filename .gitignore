@@ -16,5 +16,5 @@ node_modules
 .idea
 .vscode
 
-# Environment variables
+# Environment variables hide
 .env
