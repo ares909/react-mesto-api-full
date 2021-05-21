@@ -10,7 +10,7 @@ const users = require('./routes/users');
 const cards = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-// const logout = require('./routes/logout');
+
 const {
   createUser, login, logout,
 } = require('./controllers/users');
@@ -26,7 +26,7 @@ const NotFoundError = require('./errors/notfound');
 
 // app.options('*', cors())
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'http://khomyakov.nomoredomains.icu',
   credentials: true,
 }));
 
