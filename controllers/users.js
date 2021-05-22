@@ -117,6 +117,7 @@ const login = (req, res, next) => {
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
+        secure: true,
         sameSite: 'none',
       });
 
@@ -129,6 +130,7 @@ const logout = (req, res) => {
   res.cookie('jwt', 'token', {
     maxAge: 0,
     httpOnly: true,
+    secure: true,
     sameSite: 'none',
   }).end();
 };
