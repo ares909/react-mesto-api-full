@@ -12,7 +12,7 @@ router.get('/:userId', celebrate({
     userId: Joi.string().length(24).hex(),
   }),
 }), getUserById);
-// router.post('/', createUser);
+
 router.patch('/me', celebrate({
   body: Joi.object().keys({
     name: Joi
